@@ -1,0 +1,161 @@
+.caption{
+    color: black;
+    width: 100%;
+    font-size: 20px;
+    font-family: sans-serif;
+    font-weight: bold;
+    margin: 10px 0;
+
+}
+
+.tableData {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.tabelColumn {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.body{
+    background-color: #fdfdfd;
+}
+table{
+    background-color: white;
+}
+.table{
+    display: flex;
+    justify-content: space-around;
+}
+
+.body1{
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 0.091);
+    padding: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom-style: solid;
+    padding-left: 1px;
+    text-align: left;
+    font-family: sans-serif;
+    width: 20%;
+}
+
+.body1S {
+    width: 10%;
+}
+
+.body1L {
+    width: 40%;
+}
+
+.thead{
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 0.091);
+    padding: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom-style: solid;
+    padding-left: 1px;
+    text-align: left;
+    font-family: sans-serif;
+    width: 20%;
+}
+
+.theadS {
+    width: 10%;
+}
+
+.check{
+    display: flex;
+    justify-content: center;
+    font-family: sans-serif;
+}
+.button1{
+    display: flex;
+    justify-content: center;
+    margin: 5px;
+    font-family: sans-serif;
+    border-radius: 20%;
+    width: 100%;
+}
+.report {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-family: sans-serif;
+    margin-bottom: 20px;
+}
+.button{
+    margin: 5px;
+    font-family: sans-serif;
+    border-radius: 10px;
+    background-color: white;
+    padding: 5px;
+    border: 2px solid #d8d8d882;
+    width: 10%;
+    outline: none;
+    cursor: pointer;
+}
+    
+table {
+    border: 2px solid #d8d8d882;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+#binanceTable { 
+    width: 80%;
+}
+
+.green {
+    background-color: lightgreen;
+}
+
+.red {
+    background-color: red;
+}
+
+#pagination {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+#pagination button {
+    margin: 0 2px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+#pagination button.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+#pagination button:hover {
+    background-color: #ddd;
+}
+
+/* HTML: <div class="loader"></div> */
+.loader {
+    width: 35px;
+    aspect-ratio: 1;
+    --_g: no-repeat radial-gradient(farthest-side,#000 94%,#0000);
+    background:
+      var(--_g) 0    0,
+      var(--_g) 100% 0,
+      var(--_g) 100% 100%,
+      var(--_g) 0    100%;
+    background-size: 40% 40%;
+    animation: l38 .5s infinite;
+    margin: 40px;
+  }
+  @keyframes l38 {
+    100% {background-position: 100% 0,100% 100%,0 100%,0 0}
+  }

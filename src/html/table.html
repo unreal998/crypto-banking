@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="./table.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>binanse</title>
+</head>
+<body class="body">
+    <div class="report">
+        <h1>Отчёт</h1>
+        <div class="button1">
+            <button id="day" type="button" class="button">за день</button>
+            <button id="week" type="button" class="button">за неделю</button>
+            <button id="month" type="button" class="button">за месяц</button>
+        </div>
+    </div>
+    <div class="table">
+        <table id="binanceTable" class="tableData">
+            <caption class="caption">Binance</caption>
+            <thead>
+                <th class="thead">№ </th>
+                <th class="thead">ID </th>
+                <th class="thead">Дата </th>
+                <th class="thead theadS">Сумма</th>
+                <th class="thead">Курс </th>
+                <th class="thead theadS">Валюта</th>
+                <th class="thead theadS">Сеть</th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table tableData tabelColumn">
+        <table id="portalTable" class="">
+            <caption class="caption">PayPortal</caption>
+            <thead>
+                <th class="thead theadS">№ </th>
+                <th class="thead theadS">ID</th>
+                <th class="thead">Invoice Id </th>
+                <th class="thead theadS">Статус</th>
+                <th class="thead theadS">Сумма заявки </th>
+                <th class="thead theadS">Внесено</th>
+                <th class="thead theadS">Инструмент</th>
+                <th class="thead">К выплате в USDT</th>
+                <th class="thead">Реквизит</th>
+                <th class="thead">Дата создания</th>
+                <th class="thead">Дата завершения</th>
+                <th class="thead theadS">Время обработки</th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <div id="pagination">
+            <button>&laquo;</button>
+            <button>&raquo;</button>
+        </div>
+    </div>
+</body>
+<script src="./script.js"></script>
+</html>
