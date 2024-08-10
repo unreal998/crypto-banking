@@ -1,4 +1,5 @@
-import { SERVER_URL } from "./constants";
+const SERVER_URL = 'http://188.119.112.129:3003';
+const LOCALHOST = 'http://localhost:3003';
 
 const dayBtn = document.getElementById('day');
 const weekBtn = document.getElementById('week');
