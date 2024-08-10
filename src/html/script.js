@@ -1,3 +1,5 @@
+import { SERVER_URL } from "./constants";
+
 const dayBtn = document.getElementById('day');
 const weekBtn = document.getElementById('week');
 const monthBtn = document.getElementById('month');
@@ -30,7 +32,7 @@ async function handleFilterData(days, page) {
     loader.className += 'loader'
     tableBody.appendChild(loader);
 
-    const binanceData = await fetch(`http://localhost:3003/transfers?days=${days}&page=${page}`)
+    const binanceData = await fetch(`${SERVER_URL}/transfers?days=${days}&page=${page}`)
     .then((response) => {
         return response.json();
     }).then(data => data);
@@ -57,7 +59,7 @@ async function fetchBinanceData(page, days) {
 async function handlePortalData(page, days) {
     portalBody.innerHTML = '';
     createLoader();
-    const portalData = await fetch(`http://localhost:3003/portalData?page=${page}&days=${days}`)
+    const portalData = await fetch(`${SERVER_URL}/portalData?page=${page}&days=${days}`)
     .then((response) => {
         return response.json();
     })
