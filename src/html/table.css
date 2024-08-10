@@ -142,6 +142,35 @@ table {
     background-color: #ddd;
 }
 
+.auto-icon {
+    height: 14px;
+    width: auto;
+    margin-right: 8px;
+}
+
+#paginationBinance {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+#paginationBinance button {
+    margin: 0 2px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+#paginationBinance button.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+#paginationBinance button:hover {
+    background-color: #ddd;
+}
+
 /* HTML: <div class="loader"></div> */
 .loader {
     width: 35px;

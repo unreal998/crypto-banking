@@ -2,7 +2,12 @@ import axios from 'axios';
 
 const PORTAL_URL = "https://v2.payportal.me/kek/invoices/new/list";
  
-export async function getPortalList(page) {
+export async function getPortalList(page, days) {
+    const timestamp = Date.now();
+
+    const daysInMilisec = days * 24 * 60 * 60 * 1000;
+    const timeRange = timestamp - daysInMilisec;
+
     const params = {
         draw: page,
         'columns[0][data]': 0,
@@ -63,8 +68,10 @@ export async function getPortalList(page) {
         length: 25,
         'search[regex]': false,
         agent_id: 180,
-        sttus: -100,
-        _: Date.now()
+        status: 10,
+        _: Date.now(),
+        start_date: formatDate(timeRange),
+        finish_date: formatDate(timestamp)
     }
     const queryString = new URLSearchParams(params);
     const responce = await axios.get(`${PORTAL_URL}?${queryString}`, {
@@ -72,6 +79,44 @@ export async function getPortalList(page) {
             Cookie: 'session=eyJ1c2VyX2lkIjoxODB9.Zq3_Fg.cxjC4J3CMmtZrdZlmbxq6itrDpA'
         },
     })
-    const responceData = {...responce.data, data: responce.data.data.filter(item => item[3] === 'Счет оплачен')}
+
+    params.length = responce.data.recordsTotal;
+    params.start = 1;
+    const courcesQueryString = new URLSearchParams(params);
+    const courcesResponce = await axios.get(`${PORTAL_URL}?${courcesQueryString}`, {
+        headers: {
+            Cookie: 'session=eyJ1c2VyX2lkIjoxODB9.Zq3_Fg.cxjC4J3CMmtZrdZlmbxq6itrDpA'
+        },
+    })
+    
+    let sumUAH = 0;
+    let sumUSDT = 0;
+    let cource = 0;
+
+    courcesResponce.data.data.forEach(element => {
+        sumUAH+= +(element[5].split(' ')[0]);
+        sumUSDT+= +(element[7].split(' ')[0]);
+    });
+    cource = (sumUAH / sumUSDT).toFixed(4);
+
+    const responceData = {
+        ...responce.data,
+        sumUSDT,
+        sumUAH,
+        cource
+    }
+
     return responceData;
+}
+
+function formatDate(timestamp) {
+    const date = new Date(timestamp);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
 }

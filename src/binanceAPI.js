@@ -31,30 +31,107 @@ async function binanceRequest(endpoint, params) {
   }
 }
 
-export async function getP2PTransactions(days) {
+async function getBinanceTotalData(days) {
   const endpoint = '/sapi/v1/c2c/orderMatch/listUserOrderHistory';
   const timestamp = Date.now();
-
   const oneYearInMillis = days * 24 * 60 * 60 * 1000;
   const startTime = timestamp - oneYearInMillis;
-  
+
+  const totalData = {
+    total: 0,
+    data: []
+  }
   const params = {
     timestamp,
-    startTime,
-    endTime:timestamp,
+    startTime: timestamp,
+    endTime: startTime,
+    recvWindow: 60000
   };
   const queryString = new URLSearchParams(params).toString();
 
   const signature = sign(queryString, SECRET_KEY);
   const url = `${BASE_URL}${endpoint}?${queryString}&signature=${signature}`;
-
-  try {
+  const response = await axios.get(url, {
+    headers: {
+      'X-MBX-APIKEY': API_KEY
+    }
+  });
+  const totalPages = Math.ceil(response.data.total / 50);
+  totalData.total = response.data.total;
+  totalData.data = [...response.data.data];
+  for (let i = 2; i < totalPages; i++) {
+    const timestamp = Date.now();
+    const params = {
+      timestamp,
+      startTime: timestamp,
+      endTime: startTime,
+      page: i,
+    };
+    const queryString = new URLSearchParams(params).toString();
+  
+    const signature = sign(queryString, SECRET_KEY);
+    const url = `${BASE_URL}${endpoint}?${queryString}&signature=${signature}`;
     const response = await axios.get(url, {
       headers: {
         'X-MBX-APIKEY': API_KEY
       }
     });
-    return response.data.data.filter(item => item.createTime >= startTime);
+    totalData.data = [...totalData.data, ...response.data.data];
+  }
+  return totalData
+}
+
+export async function getP2PTransactions(days, page) {
+  const timestamp = Date.now();
+  const oneYearInMillis = days * 24 * 60 * 60 * 1000;
+  const startTime = timestamp - oneYearInMillis;
+  try {
+
+    const totalData = await getBinanceTotalData(days);
+    const items = totalData.data.filter(item => item.createTime >= startTime && item.orderStatus === 'COMPLETED')
+    const pageItems = [];
+
+    let buyCourse = 0;
+    let soldCourse = 0;
+    let buyTotal = 0;
+    let soldTotal = 0;
+    let buyCount = 0;
+    let soldCount = 0;
+
+    items.forEach((item, index) => {
+      if (index <= page * 50 && index > (page * 50) - 50) {
+        if (item.createTime >= startTime) {
+          pageItems.push(item);
+        }
+      }
+      if (item.tradeType === 'SELL' ) {
+        if (item.fiat === 'UAH') {
+          soldTotal += (+item.amount)
+          soldCourse += (+item.unitPrice);
+          soldCount += 1;
+        }
+      } else {
+        if (item.fiat === 'UAH') {
+          buyTotal += (+item.amount);
+          buyCourse += (+item.unitPrice);
+          buyCount += 1;
+        }
+      }
+
+    })
+    soldCourse = soldCount > 0 ? (soldCourse / soldCount).toFixed(4) : 0;
+    buyCourse = buyCourse > 0 ? (buyCourse / buyCount).toFixed(4) : 0;
+    buyTotal = buyTotal.toFixed(4);
+    soldTotal = soldTotal.toFixed(4);
+    const responceData = {
+      total: items.length,
+      data: pageItems,
+      buyCourse,
+      soldCourse,
+      buyTotal,
+      soldTotal,
+    }
+    return responceData;
   } catch (error) {
     console.error('Error fetching P2P transactions:', error.response ? error.response.data : error.message);
     return [];

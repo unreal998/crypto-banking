@@ -10,30 +10,27 @@ const WEEK = 7;
 const MONTH = 30;
 
 dayBtn.addEventListener('click', () => {
-    handleFilterData(DAY).then(data => {  
-        processP2PTableData(data, 'день');
-    })
+    fetchBinanceData(1, DAY);
+    fetchPortalData(1, DAY);
 })
 
 weekBtn.addEventListener('click', () => {
-    handleFilterData(WEEK).then(data => {
-        processP2PTableData(data, 'неделю');
-    })
+    fetchBinanceData(1, WEEK);
+    fetchPortalData(1, WEEK);
 })
 
 monthBtn.addEventListener('click', () => {
-    handleFilterData(MONTH).then(data => {
-        processP2PTableData(data, 'месяц');
-    })
+    fetchBinanceData(1, MONTH);
+    fetchPortalData(1, MONTH);
 })
 
-async function handleFilterData(days) {
+async function handleFilterData(days, page) {
     tableBody.innerHTML = '';
     const loader = document.createElement('div');
     loader.className += 'loader'
     tableBody.appendChild(loader);
 
-    const binanceData = await fetch(`http://localhost:3003/transfers?days=${days}`)
+    const binanceData = await fetch(`http://localhost:3003/transfers?days=${days}&page=${page}`)
     .then((response) => {
         return response.json();
     }).then(data => data);
@@ -41,22 +38,26 @@ async function handleFilterData(days) {
 }
 
 window.addEventListener('load', () => {
-    fetchPortalData(1);
-    handleFilterData(DAY).then(data => {  
-        processP2PTableData(data, 'день');
-    })
+    fetchPortalData(1, DAY);
+    fetchBinanceData(DAY, 1);
 });
 
-async function fetchPortalData(page) {
-    handlePortalData(page).then(data => {
-        processPortalTable(data, page);
+async function fetchPortalData(page, days) {
+    handlePortalData(page, days).then(data => {
+        processPortalTable(data, page, days);
     });
 }
 
-async function handlePortalData(page) {
+async function fetchBinanceData(page, days) {
+    handleFilterData(days, page).then(data => {  
+        processP2PTableData(data, days, page);
+    })
+}
+
+async function handlePortalData(page, days) {
     portalBody.innerHTML = '';
     createLoader();
-    const portalData = await fetch(`http://localhost:3003/portalData?page=${page}`)
+    const portalData = await fetch(`http://localhost:3003/portalData?page=${page}&days=${days}`)
     .then((response) => {
         return response.json();
     })
@@ -71,162 +72,118 @@ function createLoader() {
     portalBody.appendChild(loader);
 }
 
-function processPortalTable(data, page) {
+function processPortalTable(data, page, days) {
     portalBody.innerHTML = '';
+
     data.data.forEach((item, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="body1 body1S">${index}</td>
-                <td class="body1 body1S">${item[1]}</td>
-                <td class="body1 body1S">${item[2]}</td>
-                <td class="body1 body1S">${item[3]}</td>
-                <td class="body1 body1S">${item[4]}</td>
-                <td class="body1 body1S">${item[5]}</td>
-                <td class="body1 body1S">${item[6]}</td>
-                <td class="body1 body1S">${item[7]}</td>
-                <td class="body1 body1S">${item[8]}</td>
-                <td class="body1">${item[9]}</td>
-                <td class="body1">${item[10]}</td>
-                <td class="body1 body1S">${item[11]}</td>
-            `;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="body1 body1S">${index + 1}</td>
+            <td class="body1 body1S">${item[1]}</td>
+            <td class="body1 body1S">${item[2]}</td>
+            <td class="body1 body1S">${item[3]}</td>
+            <td class="body1 body1S">${item[4]}</td>
+            <td class="body1 body1S">${item[5]}</td>
+            <td class="body1">${item[6]}</td>
+            <td class="body1">${item[7]}</td>
+            <td class="body1">${item[8]}</td>
+            <td class="body1">${item[9]}</td>
+            <td class="body1">${item[10]}</td>
+            <td class="body1 body1S">${item[11]}</td>
+        `;
         portalBody.appendChild(row);
     });
+    const dayString = days === 1 ? 'день' : 'дней';
     const summRow = document.createElement('tr');
     summRow.innerHTML = `
-        <td class="body1">Общий вход: ${summ}</td>
-        <td class="body1">Общий выход: ${minus}</td>
-        <td class="body1 ${result > 0 ? 'green' : 'red'}">Отчёт за ${days}: ${result}</td>
+        <td class="body1">Получено UAH: ${data.sumUAH.toFixed(4)}</td>
+        <td class="body1">Продано USDT: ${data.sumUSDT.toFixed(4)}</td>
+        <td class="body1">Средний курс продажи за ${days} ${dayString} в UAH: ${data.cource}</td>
     `;
-    portalBody.appendChild(row);
-    setupPagination(data.recordsFiltered, 25, page);
-}
-
-function setupPagination(totalItems, rowsPerPage, currentPage) {
-    const pageCount = Math.ceil(totalItems / rowsPerPage);
+    portalBody.appendChild(summRow);
     const paginationControls = document.getElementById('pagination');
-    paginationControls.innerHTML = '';
-
-    if (pageCount > 4) {
-        if (currentPage > 1) {
-            for(let i = currentPage - 1; i <= currentPage + 4; i++) {
-                paginationControls.appendChild(createButton(i, currentPage));
-            }
-        } else {
-            for(let i = 1; i <= 4; i++) {
-                paginationControls.appendChild(createButton(i, currentPage));
-            }
-        }
-
-        if (pageCount > 7) {
-            const ellipsis = document.createElement('span');
-            ellipsis.innerText = '...';
-            paginationControls.appendChild(ellipsis);
-            paginationControls.appendChild(createButton(pageCount, currentPage));
-        }
-    } else {
-        for(let i = 1; i <= pageCount; i++) {
-            paginationControls.appendChild(createButton(i, currentPage));
-        }
-    }
+    setupPagination(data.recordsFiltered, 25, page, days, paginationControls, 'pagination', fetchPortalData);
 }
 
-function createButton(text, currentPage) {
-        const button = document.createElement('button');
-        button.innerText = text;
-        button.className = text === currentPage ? 'active' : '';
-        button.addEventListener('click', () => {
-            document.querySelector('#pagination button.active').classList.remove('active');
-            button.classList.add('active');
-            fetchPortalData(text);
-        });
-        return button
-}
-
-function processTableData(data, days) {
+function processP2PTableData(data, days, page) {
     tableBody.innerHTML = '';
-    let summ = 0;
-    let minus = 0;
-    data.deposites.forEach(rowData => {
-        const row = document.createElement('tr');
-        row.className += ' green'
-        row.innerHTML = `
-            <td class="body1">${rowData.orderNumber}</td>
-            <td class="body1">${rowData.address}</td>
-            <td class="body1 body1L">${formatTime(rowData.insertTime)}</td>
-            <td class="body1 body1S">${rowData.amount}</td>
-            <td class="body1 body1S">${rowData.coin}</td>
-            <td class="body1 body1S">${rowData.network}</td>
-        `;
-        summ += (+rowData.amount);
-        tableBody.appendChild(row);
-    });
-    data.withdrawals.forEach(rowData => {
-        const row = document.createElement('tr');
-        row.className += ' red'
-        row.innerHTML = `
-            <td class="body1">${rowData.id}</td>
-            <td class="body1">${rowData.address}</td>
-            <td class="body1 body1L">${rowData.completeTime}</td>
-            <td class="body1 body1S">${rowData.amount}</td>
-            <td class="body1 body1S">${rowData.coin}</td>
-            <td class="body1 body1S">${rowData.network}</td>
-        `;
-        minus -= (+rowData.amount);
-        tableBody.appendChild(row);
-    });
-    const result = summ + minus;
-    const summRow = document.createElement('tr');
-    summRow.innerHTML = `
-        <td class="body1">Общий вход: ${summ}</td>
-        <td class="body1">Общий выход: ${minus}</td>
-        <td class="body1 ${result > 0 ? 'green' : 'red'}">Отчёт за ${days}: ${result}</td>
-    `;
-    tableBody.appendChild(summRow);
-}
 
-function processP2PTableData(data, days) {
-    tableBody.innerHTML = '';
-    let summ = 0;
-    let minus = 0;
-    let cours = 0;
-    let count = 0;
-    let fullCount = 0;
-    data.forEach(rowData => {
-        if(rowData.orderStatus !== 'COMPLETED') {
-            return;
-        }
-        fullCount++;
+    data.data.forEach((rowData, index) => {
         const row = document.createElement('tr');
 
         row.innerHTML = `
-            <td class="body1 body1S">${fullCount}</td>
+            <td class="body1 body1S">${index + 1}</td>
             <td class="body1">${rowData.orderNumber}</td>
-            <td class="body1 body1L">${formatTime(rowData.createTime)}</td>
-            <td class="body1 body1S">${rowData.amount}</td>
+            <td class="body1">${formatTime(rowData.createTime)}</td>
+            <td class="body1 body1S">${(+rowData.amount).toFixed(4)} ${rowData.asset}</td>
+            <td class="body1 body1S">${(+rowData.totalPrice).toFixed(4)} ${rowData.fiat}</td>
             <td class="body1">${rowData.unitPrice}</td>
-            <td class="body1 body1S">${rowData.asset}</td>
             <td class="body1 body1S">${rowData.payMethodName}</td>
         `;
         if (rowData.tradeType === 'SELL') {
             row.className += ' red'
-            minus -= rowData.amount
         } else {
             row.className += ' green'
-            summ += (+rowData.amount);
-            cours += (+rowData.unitPrice)
-            count += 1;
         }
         tableBody.appendChild(row);
     });
-    const result = summ + minus;
     const summRow = document.createElement('tr');
+    const dayString = days === 1 ? 'день' : 'дней';
     summRow.innerHTML = `
-        <td class="body1">Общий вход: ${summ}</td>
-        <td class="body1">Общий выход: ${minus}</td>
-        <td class="body1 ${result > 0 ? 'green' : 'red'}">Отчёт за ${days}: ${result}</td>
-        <td class="body1">Средний курс за ${days}: ${(cours/count).toFixed(4)}</td>
+        <td class="body1">Всего куплено: ${data.buyTotal}</td>
+        <td class="body1">Всего продано: ${data.soldTotal}</td>
+        <td class="body1">Средний курс покупки за ${days} ${dayString} в UAH: ${data.buyCourse}</td>
+        <td class="body1">Средний курс продажи за ${days} ${dayString} в UAH: ${data.soldCourse}</td>
     `;
     tableBody.appendChild(summRow);
+    const paginationControls = document.getElementById('paginationBinance');
+    setupPagination(data.total, 50, page, days, paginationControls, 'paginationBinance', fetchBinanceData);
+}
+
+function setupPagination(totalItems, rowsPerPage, currentPage, days, paginationControls, paginationName, callback) {
+    const pageCount = Math.ceil(totalItems / rowsPerPage);
+    paginationControls.innerHTML = '';
+
+    if (pageCount > 4) {
+        if (currentPage > 1) {
+            if (currentPage + 4 > pageCount) {
+                for(let i = currentPage - 1; i <= pageCount; i++) {
+                    paginationControls.appendChild(createButton(i, currentPage, days, paginationName, callback));
+                }
+            } else {
+                for(let i = currentPage - 1; i <= currentPage + 4; i++) {
+                    paginationControls.appendChild(createButton(i, currentPage, days, paginationName, callback));
+                }
+            }
+        } else {
+            for(let i = 1; i <= 4; i++) {
+                paginationControls.appendChild(createButton(i, currentPage, days, paginationName, callback));
+            }
+        }
+
+        if (pageCount > 7 && currentPage <= pageCount - 4) {
+            const ellipsis = document.createElement('span');
+            ellipsis.innerText = '...';
+            paginationControls.appendChild(ellipsis);
+            paginationControls.appendChild(createButton(pageCount, currentPage, days, paginationName, callback));
+        }
+    } else {
+        for(let i = 1; i <= pageCount; i++) {
+            paginationControls.appendChild(createButton(i, currentPage, days, paginationName, callback));
+        }
+    }
+}
+
+function createButton(text, currentPage, days, paginationName, callback) {
+        const button = document.createElement('button');
+        button.innerText = text;
+        button.className = text === currentPage ? 'active' : '';
+        button.addEventListener('click', () => {
+            document.querySelector(`#${paginationName} button.active`).classList.remove('active');
+            button.classList.add('active');
+            callback(text, days);
+        });
+        return button
 }
 
 function formatTime(time) {

@@ -24,6 +24,10 @@ app.get(/.js$/, function(clientRequest, clientResponse) {
     clientResponse.sendFile(path.join(__dirname, '/src/html' + clientRequest.path));
 })
 
+app.get(/.svg$/, function(clientRequest, clientResponse) {
+    clientResponse.sendFile(path.join(__dirname, '/src/html' + clientRequest.path));
+})
+
 app.get('/data', function(clientRequest, clientResponse) {
     const queyData = clientRequest.query;
     const binanceData = {
@@ -42,7 +46,7 @@ app.get('/data', function(clientRequest, clientResponse) {
 
 app.get('/transfers', function(clientRequest, clientResponse){
     const queyData = clientRequest.query;
-    getP2PTransactions(queyData.days).then(data => {
+    getP2PTransactions(queyData.days, queyData.page).then(data => {
         clientResponse.send(data);
     });
 });
@@ -55,7 +59,7 @@ app.get('/', function(clientRequest, clientResponse) {
 
 app.get('/portalData', function(clientRequest, clientResponse) {
     const queyData = clientRequest.query;
-    getPortalList(queyData.page).then(data => {
+    getPortalList(queyData.page, queyData.days).then(data => {
         clientResponse.send(data);
     });
 })
