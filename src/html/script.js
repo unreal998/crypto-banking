@@ -1,31 +1,26 @@
 const SERVER_URL = 'http://188.119.112.129:3003';
 const LOCALHOST = 'http://localhost:3003';
 
-const dayBtn = document.getElementById('day');
-const weekBtn = document.getElementById('week');
-const monthBtn = document.getElementById('month');
+
 const binanceTable = document.getElementById('binanceTable');
 const tableBody = document.querySelector('#binanceTable tbody');
 const portalBody = document.querySelector('#portalTable tbody');
+
+const timeSelector = document.getElementById('timeSelector') // вместо id впиши id селектора
+
 
 const DAY = 1;
 const WEEK = 7;
 const MONTH = 30;
 
-dayBtn.addEventListener('click', () => {
-    fetchBinanceData(1, DAY);
-    fetchPortalData(1, DAY);
-})
 
-weekBtn.addEventListener('click', () => {
-    fetchBinanceData(1, WEEK);
-    fetchPortalData(1, WEEK);
-})
 
-monthBtn.addEventListener('click', () => {
-    fetchBinanceData(1, MONTH);
-    fetchPortalData(1, MONTH);
-})
+
+
+
+timeSelector.addEventListener('change', (value) => {
+     console.log(value)})
+     
 
 async function handleFilterData(days, page) {
     tableBody.innerHTML = '';
