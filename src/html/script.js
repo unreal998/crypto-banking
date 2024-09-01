@@ -9,7 +9,7 @@ const portalBody = document.querySelector('#portalTable tbody');
 const timeSelector = document.getElementById('timeSelector') // вместо id впиши id селектора
 
 
-const HOUR = 360000;
+const HOUR = 3600000;
 
 
 timeSelector.addEventListener('change', (value) => {

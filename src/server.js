@@ -4,7 +4,7 @@ import http from 'http'
 import { load } from 'cheerio';
 import * as path from 'path';
 import { readFileSync } from 'fs';
-import { getDeposits, getWithdrawals, getP2PTransactions } from './binanceAPI.js';
+import { getP2PTransactions } from './binanceAPI.js';
 import { getPortalList } from "./portalAPI.js";
 
 const app = express();
@@ -27,22 +27,6 @@ app.get(/.js$/, function(clientRequest, clientResponse) {
 app.get(/.svg$/, function(clientRequest, clientResponse) {
     clientResponse.sendFile(path.join(__dirname, '/src/html' + clientRequest.path));
 })
-
-app.get('/data', function(clientRequest, clientResponse) {
-    const queyData = clientRequest.query;
-    const binanceData = {
-        withdrawals: [],
-        deposites: []
-    }
-    getWithdrawals(queyData.days).then(data => {
-        binanceData.withdrawals = data;
-        getDeposits(queyData.days).then(data => {
-            binanceData.deposites = data;
-            clientResponse.send(binanceData);
-        });
-    });
-
-});
 
 app.get('/transfers', function(clientRequest, clientResponse){
     const queyData = clientRequest.query;

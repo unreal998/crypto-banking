@@ -31,10 +31,10 @@ async function binanceRequest(endpoint, params) {
   }
 }
 
-async function getBinanceTotalData(days) {
+async function getBinanceTotalData(milisec) {
   const endpoint = '/sapi/v1/c2c/orderMatch/listUserOrderHistory';
   const timestamp = Date.now();
-  const oneYearInMillis = days * 24 * 60 * 60 * 1000;
+  const oneYearInMillis = milisec;
   const startTime = timestamp - oneYearInMillis;
 
   const totalData = {
@@ -81,13 +81,13 @@ async function getBinanceTotalData(days) {
   return totalData
 }
 
-export async function getP2PTransactions(days, page) {
+export async function getP2PTransactions(milisec, page) {
   const timestamp = Date.now();
-  const oneYearInMillis = days * 24 * 60 * 60 * 1000;
-  const startTime = timestamp - oneYearInMillis;
+
+  const startTime = timestamp - milisec;
   try {
 
-    const totalData = await getBinanceTotalData(days);
+    const totalData = await getBinanceTotalData(milisec);
     const items = totalData.data.filter(item => item.createTime >= startTime && item.orderStatus === 'COMPLETED')
     const pageItems = [];
 
@@ -136,39 +136,4 @@ export async function getP2PTransactions(days, page) {
     console.error('Error fetching P2P transactions:', error.response ? error.response.data : error.message);
     return [];
   }
-}
-
-// Функция для получения депозитов
-export async function getDeposits(days) {
-  const endpoint = '/sapi/v1/capital/deposit/hisrec';
-
-  const oneYearInMillis = days * 24 * 60 * 60 * 1000;
-  const endTime = Date.now();
-  const startTime = endTime - oneYearInMillis;
-
-  const params = {
-    timestamp: Date.now(),
-    startTime,
-    endTime,
-  };
-  const deposits = await binanceRequest(endpoint, params);
-  return deposits;
-}
-
-// Функция для получения выводов
-export async function getWithdrawals(days) {
-  const endpoint = '/sapi/v1/capital/withdraw/history';
-
-  const oneYearInMillis = days * 24 * 60 * 60 * 1000;
-  const endTime = Date.now();
-  const startTime = endTime - oneYearInMillis;
-
-  const params = {
-    timestamp: Date.now(),
-    coin: "USDT",
-    startTime,
-    endTime,
-  };
-  const withdrawals = await binanceRequest(endpoint, params);
-  return withdrawals;
 }

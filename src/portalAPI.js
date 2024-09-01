@@ -2,11 +2,10 @@ import axios from 'axios';
 
 const PORTAL_URL = "https://v2.payportal.me/kek/invoices/new/list";
  
-export async function getPortalList(page, days) {
+export async function getPortalList(page, milisec) {
     const timestamp = Date.now();
 
-    const daysInMilisec = days * 24 * 60 * 60 * 1000;
-    const timeRange = timestamp - daysInMilisec;
+    const timeRange = timestamp - milisec;
 
     const params = {
         draw: page,
