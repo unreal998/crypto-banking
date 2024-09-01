@@ -76,18 +76,16 @@ function processPortalTable(data, page, days) {
     data.data.forEach((item, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td class="body1 body1S">${index + 1}</td>
-            <td class="body1 body1S">${item[1]}</td>
+            <td class="body1 body1S1">${index + 1}</td>
+            <td class="body1 body1S1">${item[1]}</td>
             <td class="body1 body1S">${item[2]}</td>
-            <td class="body1 body1S">${item[3]}</td>
-            <td class="body1 body1S">${item[4]}</td>
-            <td class="body1 body1S">${item[5]}</td>
-            <td class="body1">${item[6]}</td>
-            <td class="body1">${item[7]}</td>
-            <td class="body1">${item[8]}</td>
-            <td class="body1">${item[9]}</td>
-            <td class="body1">${item[10]}</td>
-            <td class="body1 body1S">${item[11]}</td>
+            <td class="body1 body1S1">${item[3]}</td>
+            <td  class="body1 body1S">${item[4]}</td>
+            <td  class="body1 body1S">${item[5]}</td>
+            <td  class="body1 body1S1">${item[6]}</td>
+            <td  class="body1">${item[7]}</td>
+            <td  class="body1">${item[8]}</td>
+            <td  class="body1">${item[9]}</td>
         `;
         portalBody.appendChild(row);
     });
@@ -110,7 +108,7 @@ function processP2PTableData(data, days, page) {
         const row = document.createElement('tr');
 
         row.innerHTML = `
-            <td class="body1 body1S">${index + 1}</td>
+            <td class="body1 body1S1">${index + 1}</td>
             <td class="body1">${rowData.orderNumber}</td>
             <td class="body1">${formatTime(rowData.createTime)}</td>
             <td class="body1 body1S">${(+rowData.amount).toFixed(4)} ${rowData.asset}</td>
