@@ -9,17 +9,13 @@ const portalBody = document.querySelector('#portalTable tbody');
 const timeSelector = document.getElementById('timeSelector') // вместо id впиши id селектора
 
 
-const DAY = 1;
-const WEEK = 7;
-const MONTH = 30;
-
-
-
-
+const HOUR = 360000;
 
 
 timeSelector.addEventListener('change', (value) => {
-     console.log(value)})
+    fetchPortalData(1, value.target.valueAsNumber);
+    fetchBinanceData(value.target.valueAsNumber, 1);
+})
      
 
 async function handleFilterData(days, page) {
@@ -36,8 +32,8 @@ async function handleFilterData(days, page) {
 }
 
 window.addEventListener('load', () => {
-    fetchPortalData(1, DAY);
-    fetchBinanceData(DAY, 1);
+    fetchPortalData(1, HOUR);
+    fetchBinanceData(HOUR, 1);
 });
 
 async function fetchPortalData(page, days) {
