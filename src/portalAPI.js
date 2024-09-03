@@ -95,7 +95,6 @@ export async function getPortalList(page, milisec) {
     courcesResponce.data.data.forEach(element => {
         sumUAH+= +(element[5].split(' ')[0]);
         sumUSDT+= +(element[7].split(' ')[0]);
-        console.log(element[7].split(' ')[0])
     });
     cource = (sumUAH / sumUSDT).toFixed(4);
 

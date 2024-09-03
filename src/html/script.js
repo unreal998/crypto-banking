@@ -24,7 +24,6 @@ timeSelector.addEventListener('change', (value) => {
     fetchBinanceData(1, new Date(convertToTheDateTime(value.target.value)).getTime());
 })
      
-
 async function handleFilterData(days, page) {
     tableBody.innerHTML = '';
     const loader = document.createElement('div');
@@ -113,8 +112,8 @@ function processP2PTableData(data, days, page) {
             <td class="body1 body1S1">${index + 1}</td>
             <td class="body1">${rowData.orderNumber}</td>
             <td class="body1">${formatTime(rowData.createTime)}</td>
-            <td class="body1 body1S">${(+rowData.amount).toFixed(4)} ${rowData.asset}</td>
-            <td class="body1 body1S">${(+rowData.totalPrice).toFixed(4)} ${rowData.fiat}</td>
+            ${rowData.tradeType === 'BUY' ? `<td class="body1 body1S">${(+rowData.amount).toFixed(4)} ${rowData.asset}</td>` : `<td class="body1 body1S">${(+rowData.totalPrice).toFixed(4)} ${rowData.fiat}</td>`}
+            ${rowData.tradeType === 'BUY' ? `<td class="body1 body1S">${(+rowData.totalPrice).toFixed(4)} ${rowData.fiat}</td>` : `<td class="body1 body1S">${(+rowData.amount).toFixed(4)} ${rowData.asset}</td>`}
             <td class="body1">${rowData.unitPrice}</td>
             <td class="body1 body1S">${rowData.payMethodName}</td>
         `;
@@ -200,7 +199,14 @@ function formatTime(time) {
 function convertToTheDateTime(dateTimeString) {
     const splitedString = dateTimeString.split(' ');
     const dateString = splitedString[0].split('.');
-
-    const convertedString = `${dateString[1]}.${dateString[0]}.${dateString[2]} ${splitedString[1]}`;
+    let convertedString = `${dateString[1]}.${dateString[0]}.${dateString[2]} ${splitedString[1]}`;
+    if (IsSafari()) {
+        convertedString = `${dateString[1]}/${dateString[0]}/${dateString[2]}, ${splitedString[1]}`;
+    }
     return convertedString;
+}
+
+function IsSafari() {
+    const is_safari = navigator.vendor.indexOf('Apple') > -1;
+    return is_safari;
 }

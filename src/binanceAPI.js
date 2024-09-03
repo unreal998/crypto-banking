@@ -76,7 +76,7 @@ export async function getP2PTransactions(milisec, page) {
     let soldCount = 0;
 
     items.forEach((item, index) => {
-      if (index <= page * 50 && index > (page * 50) - 50) {
+      if (index <= page * 50 && index > (page * 50) - 51) {
         if (item.createTime >= milisec) {
           pageItems.push(item);
         }
