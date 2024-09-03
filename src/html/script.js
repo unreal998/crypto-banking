@@ -1,5 +1,5 @@
 const SERVER_URL = 'http://188.119.112.129:3003';
-const LOCALHOST = 'http://localhost:3003';
+// const SERVER_URL = 'http://localhost:3003';
 
 
 const binanceTable = document.getElementById('binanceTable');
@@ -9,12 +9,19 @@ const portalBody = document.querySelector('#portalTable tbody');
 const timeSelector = document.getElementById('timeSelector') // вместо id впиши id селектора
 
 
-const HOUR = 3600000;
+const HOUR = Date.now() - 3600000;
 
+flatpickr("#timeSelector", {
+    enableTime: true,
+    enableSeconds: true,
+    dateFormat: "d.m.Y H:i:S",  // Настраиваем формат даты и времени
+    defaultDate: formatTime(HOUR),
+    time_24hr: true  // 24-часовой формат времени
+  });
 
 timeSelector.addEventListener('change', (value) => {
-    fetchPortalData(1, value.target.valueAsNumber);
-    fetchBinanceData(value.target.valueAsNumber, 1);
+    fetchPortalData(1, new Date(convertToTheDateTime(value.target.value)).getTime());
+    fetchBinanceData(1, new Date(convertToTheDateTime(value.target.value)).getTime());
 })
      
 
@@ -33,7 +40,7 @@ async function handleFilterData(days, page) {
 
 window.addEventListener('load', () => {
     fetchPortalData(1, HOUR);
-    fetchBinanceData(HOUR, 1);
+    fetchBinanceData(1, HOUR);
 });
 
 async function fetchPortalData(page, days) {
@@ -85,12 +92,11 @@ function processPortalTable(data, page, days) {
         `;
         portalBody.appendChild(row);
     });
-    const dayString = days === 1 ? 'день' : 'дней';
     const summRow = document.createElement('tr');
     summRow.innerHTML = `
         <td class="body1">Получено UAH: ${data.sumUAH.toFixed(4)}</td>
         <td class="body1">Продано USDT: ${data.sumUSDT.toFixed(4)}</td>
-        <td class="body1">Средний курс продажи за ${days} ${dayString} в UAH: ${data.cource}</td>
+        <td class="body1">Средний курс продажи с ${formatTime(days)} в UAH: ${data.cource}</td>
     `;
     portalBody.appendChild(summRow);
     const paginationControls = document.getElementById('pagination');
@@ -120,12 +126,11 @@ function processP2PTableData(data, days, page) {
         tableBody.appendChild(row);
     });
     const summRow = document.createElement('tr');
-    const dayString = days === 1 ? 'день' : 'дней';
     summRow.innerHTML = `
         <td class="body1">Всего куплено: ${data.buyTotal}</td>
         <td class="body1">Всего продано: ${data.soldTotal}</td>
-        <td class="body1">Средний курс покупки за ${days} ${dayString} в UAH: ${data.buyCourse}</td>
-        <td class="body1">Средний курс продажи за ${days} ${dayString} в UAH: ${data.soldCourse}</td>
+        <td class="body1">Средний курс покупки с ${formatTime(days)} в UAH: ${data.buyCourse}</td>
+        <td class="body1">Средний курс продажи с ${formatTime(days)} в UAH: ${data.soldCourse}</td>
     `;
     tableBody.appendChild(summRow);
     const paginationControls = document.getElementById('paginationBinance');
@@ -179,12 +184,23 @@ function createButton(text, currentPage, days, paginationName, callback) {
 }
 
 function formatTime(time) {
-    const dateFromTimestamp = new Date(time);
-    const year = dateFromTimestamp.getFullYear();
-    const month = dateFromTimestamp.getMonth();
-    const day = dateFromTimestamp.getDate();
-    const hours = dateFromTimestamp.getHours();
-    const minutes = dateFromTimestamp.getMinutes();
-    const secconds = dateFromTimestamp.getSeconds();
-    return `${year}-${month}-${day} ${hours}:${minutes}:${secconds}`
+    const dateTime = new Date(time);
+
+    const year = dateTime.getFullYear();
+    const month = String(dateTime.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0, поэтому добавляем 1
+    const day = String(dateTime.getDate()).padStart(2, '0');
+    const hours = String(dateTime.getHours()).padStart(2, '0');
+    const minutes = String(dateTime.getMinutes()).padStart(2, '0');
+    const secconds = String(dateTime.getSeconds()).padStart(2, '0');
+    
+    const localDatetime = `${day}-${month}-${year} ${hours}:${minutes}:${secconds}`;
+    return localDatetime;
+}
+
+function convertToTheDateTime(dateTimeString) {
+    const splitedString = dateTimeString.split(' ');
+    const dateString = splitedString[0].split('.');
+
+    const convertedString = `${dateString[1]}.${dateString[0]}.${dateString[2]} ${splitedString[1]}`;
+    return convertedString;
 }

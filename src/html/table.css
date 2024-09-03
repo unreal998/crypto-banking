@@ -245,7 +245,7 @@ table {
     #timeSelector{
         width: 70px;
         border-radius: 5px;
-        font-size: 6px;
+        font-size: 7px;
        border-width: 0px;
     }
 
@@ -283,7 +283,7 @@ table {
 
     #timeSelector{
         width: 80px;
-        font-size: 7px;
+        font-size: 8px;
        border-width: 0px;
     }
 
@@ -307,7 +307,7 @@ table {
         font-size: 65%;
     }
     #timeSelector{
-        width: 90px;
+        width: 100px;
         font-size: 10px;
        border-width: 0px;
     }
@@ -332,7 +332,7 @@ table {
 
     #timeSelector{
         width: 150px;
-        font-size: 12px;
+        font-size: 15px;
        border-width: 0px;
     }
 }

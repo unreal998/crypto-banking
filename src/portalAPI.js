@@ -1,11 +1,10 @@
 import axios from 'axios';
 
 const PORTAL_URL = "https://v2.payportal.me/kek/invoices/new/list";
- 
+const SESSION_KEY = "eyJ1c2VyX2lkIjoxODB9.ZtbfsQ.3pFpcvsew2vQAhqVtpQs-U-JBek";
+
 export async function getPortalList(page, milisec) {
     const timestamp = Date.now();
-
-    const timeRange = timestamp - milisec;
 
     const params = {
         draw: page,
@@ -68,23 +67,24 @@ export async function getPortalList(page, milisec) {
         'search[regex]': false,
         agent_id: 180,
         status: 10,
-        _: Date.now(),
-        start_date: formatDate(timeRange),
+        _: timestamp,
+        start_date: formatDate(milisec),
         finish_date: formatDate(timestamp)
     }
     const queryString = new URLSearchParams(params);
     const responce = await axios.get(`${PORTAL_URL}?${queryString}`, {
         headers: {
-            Cookie: 'session=eyJ1c2VyX2lkIjoxODB9.Zq3_Fg.cxjC4J3CMmtZrdZlmbxq6itrDpA'
+            Cookie: `session=${SESSION_KEY}`
         },
     })
 
     params.length = responce.data.recordsTotal;
-    params.start = 1;
+
+    params.start = 0;
     const courcesQueryString = new URLSearchParams(params);
     const courcesResponce = await axios.get(`${PORTAL_URL}?${courcesQueryString}`, {
         headers: {
-            Cookie: 'session=eyJ1c2VyX2lkIjoxODB9.Zq3_Fg.cxjC4J3CMmtZrdZlmbxq6itrDpA'
+            Cookie: `session=${SESSION_KEY}`
         },
     })
     
@@ -95,6 +95,7 @@ export async function getPortalList(page, milisec) {
     courcesResponce.data.data.forEach(element => {
         sumUAH+= +(element[5].split(' ')[0]);
         sumUSDT+= +(element[7].split(' ')[0]);
+        console.log(element[7].split(' ')[0])
     });
     cource = (sumUAH / sumUSDT).toFixed(4);
 
@@ -109,7 +110,7 @@ export async function getPortalList(page, milisec) {
 }
 
 function formatDate(timestamp) {
-    const date = new Date(timestamp);
+    const date = new Date(+timestamp);
 
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');

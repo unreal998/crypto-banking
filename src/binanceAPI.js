@@ -13,29 +13,9 @@ function sign(queryString, secretKey) {
   return createHmac('sha256', secretKey).update(queryString).digest('hex');
 }
 
-// Функция для отправки запроса к API Binance
-async function binanceRequest(endpoint, params) {
-  const queryString = new URLSearchParams(params).toString();
-  const signature = sign(queryString, SECRET_KEY);
-  const url = `${BASE_URL}${endpoint}?${queryString}&signature=${signature}`;
-
-  try {
-    const response = await axios.get(url, {
-      headers: {
-        'X-MBX-APIKEY': API_KEY,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error making request to Binance API:', error.response ? error.response.data : error.message);
-  }
-}
-
 async function getBinanceTotalData(milisec) {
   const endpoint = '/sapi/v1/c2c/orderMatch/listUserOrderHistory';
   const timestamp = Date.now();
-  const oneYearInMillis = milisec;
-  const startTime = timestamp - oneYearInMillis;
 
   const totalData = {
     total: 0,
@@ -44,7 +24,7 @@ async function getBinanceTotalData(milisec) {
   const params = {
     timestamp,
     startTime: timestamp,
-    endTime: startTime,
+    endTime: milisec,
     recvWindow: 60000
   };
   const queryString = new URLSearchParams(params).toString();
@@ -64,7 +44,7 @@ async function getBinanceTotalData(milisec) {
     const params = {
       timestamp,
       startTime: timestamp,
-      endTime: startTime,
+      endTime: milisec,
       page: i,
     };
     const queryString = new URLSearchParams(params).toString();
@@ -82,13 +62,10 @@ async function getBinanceTotalData(milisec) {
 }
 
 export async function getP2PTransactions(milisec, page) {
-  const timestamp = Date.now();
-
-  const startTime = timestamp - milisec;
   try {
 
     const totalData = await getBinanceTotalData(milisec);
-    const items = totalData.data.filter(item => item.createTime >= startTime && item.orderStatus === 'COMPLETED')
+    const items = totalData.data.filter(item => item.createTime >= milisec && item.orderStatus === 'COMPLETED')
     const pageItems = [];
 
     let buyCourse = 0;
@@ -100,7 +77,7 @@ export async function getP2PTransactions(milisec, page) {
 
     items.forEach((item, index) => {
       if (index <= page * 50 && index > (page * 50) - 50) {
-        if (item.createTime >= startTime) {
+        if (item.createTime >= milisec) {
           pageItems.push(item);
         }
       }
