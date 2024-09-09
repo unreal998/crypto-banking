@@ -19,6 +19,15 @@ flatpickr("#timeSelector", {
     time_24hr: true  // 24-часовой формат времени
   });
 
+  // Скорми сюда айдишку новго селектора
+  flatpickr("#timeSelector", {
+    enableTime: true,
+    enableSeconds: true,
+    dateFormat: "d.m.Y H:i:S",  // Настраиваем формат даты и времени
+    defaultDate: formatTime(HOUR),
+    time_24hr: true  // 24-часовой формат времени
+  });
+
 timeSelector.addEventListener('change', (value) => {
     fetchPortalData(1, new Date(convertToTheDateTime(value.target.value)).getTime());
     fetchBinanceData(1, new Date(convertToTheDateTime(value.target.value)).getTime());
