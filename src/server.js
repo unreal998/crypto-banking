@@ -30,7 +30,7 @@ app.get(/.svg$/, function(clientRequest, clientResponse) {
 
 app.get('/transfers', function(clientRequest, clientResponse){
     const queyData = clientRequest.query;
-    getP2PTransactions(queyData.days, queyData.page).then(data => {
+    getP2PTransactions(queyData.page, queyData.from, queyData.to).then(data => {
         clientResponse.send(data);
     });
 });
@@ -43,7 +43,7 @@ app.get('/', function(clientRequest, clientResponse) {
 
 app.get('/portalData', function(clientRequest, clientResponse) {
     const queyData = clientRequest.query;
-    getPortalList(queyData.page, queyData.days).then(data => {
+    getPortalList(queyData.page, queyData.from, queyData.to).then(data => {
         clientResponse.send(data);
     });
 })

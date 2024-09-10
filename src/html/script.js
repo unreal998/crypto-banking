@@ -1,45 +1,52 @@
-const SERVER_URL = 'http://188.119.112.129:3003';
-// const SERVER_URL = 'http://localhost:3003';
+// const SERVER_URL = 'http://188.119.112.129:3003';
+const SERVER_URL = 'http://localhost:3003';
 
 
 const binanceTable = document.getElementById('binanceTable');
 const tableBody = document.querySelector('#binanceTable tbody');
 const portalBody = document.querySelector('#portalTable tbody');
 
-const timeSelector = document.getElementById('timeSelector') // вместо id впиши id селектора
+const timeSelectorFrom = document.getElementById('timeSelectorFrom') // вместо id впиши id селектора
+const timeSelectorTo = document.getElementById('timeSelectorTo') // вместо id впиши id селектора
 
+let fromTime = Date.now() - 3600000;
+let toTime = Date.now();
 
-const HOUR = Date.now() - 3600000;
-
-flatpickr("#timeSelector", {
+flatpickr("#timeSelectorFrom", {
     enableTime: true,
     enableSeconds: true,
     dateFormat: "d.m.Y H:i:S",  // Настраиваем формат даты и времени
-    defaultDate: formatTime(HOUR),
+    defaultDate: formatTime(fromTime),
     time_24hr: true  // 24-часовой формат времени
   });
 
-  // Скорми сюда айдишку новго селектора
-  flatpickr("#timeSelector", {
+  flatpickr("#timeSelectorTo", {
     enableTime: true,
     enableSeconds: true,
     dateFormat: "d.m.Y H:i:S",  // Настраиваем формат даты и времени
-    defaultDate: formatTime(HOUR),
+    defaultDate: formatTime(toTime),
     time_24hr: true  // 24-часовой формат времени
   });
 
-timeSelector.addEventListener('change', (value) => {
-    fetchPortalData(1, new Date(convertToTheDateTime(value.target.value)).getTime());
-    fetchBinanceData(1, new Date(convertToTheDateTime(value.target.value)).getTime());
+timeSelectorFrom.addEventListener('change', (value) => {
+    fromTime = new Date(convertToTheDateTime(value.target.value)).getTime();
+    fetchPortalData(1, fromTime, toTime);
+    fetchBinanceData(1, fromTime, toTime);
+})
+
+timeSelectorTo.addEventListener('change', (value) => {
+    toTime = new Date(convertToTheDateTime(value.target.value)).getTime();
+    fetchPortalData(1, fromTime, toTime);
+    fetchBinanceData(1, fromTime, toTime);
 })
      
-async function handleFilterData(days, page) {
+async function handleFilterData(page, fromTime, toTime) {
     tableBody.innerHTML = '';
     const loader = document.createElement('div');
     loader.className += 'loader'
     tableBody.appendChild(loader);
 
-    const binanceData = await fetch(`${SERVER_URL}/transfers?days=${days}&page=${page}`)
+    const binanceData = await fetch(`${SERVER_URL}/transfers?from=${fromTime}&to=${toTime}&page=${page}`)
     .then((response) => {
         return response.json();
     }).then(data => data);
@@ -47,26 +54,26 @@ async function handleFilterData(days, page) {
 }
 
 window.addEventListener('load', () => {
-    fetchPortalData(1, HOUR);
-    fetchBinanceData(1, HOUR);
+    fetchPortalData(1, fromTime, toTime);
+    fetchBinanceData(1, fromTime, toTime);
 });
 
-async function fetchPortalData(page, days) {
-    handlePortalData(page, days).then(data => {
-        processPortalTable(data, page, days);
+async function fetchPortalData(page, fromTime, toTime) {
+    handlePortalData(page, fromTime, toTime).then(data => {
+        processPortalTable(data, page, fromTime, toTime);
     });
 }
 
-async function fetchBinanceData(page, days) {
-    handleFilterData(days, page).then(data => {  
-        processP2PTableData(data, days, page);
+async function fetchBinanceData(page, fromTime, toTime) {
+    handleFilterData(page, fromTime, toTime).then(data => {  
+        processP2PTableData(data, page, fromTime, toTime);
     })
 }
 
-async function handlePortalData(page, days) {
+async function handlePortalData(page, fromTime, toTime) {
     portalBody.innerHTML = '';
     createLoader();
-    const portalData = await fetch(`${SERVER_URL}/portalData?page=${page}&days=${days}`)
+    const portalData = await fetch(`${SERVER_URL}/portalData?page=${page}&from=${fromTime}&to=${toTime}`)
     .then((response) => {
         return response.json();
     })
@@ -81,7 +88,7 @@ function createLoader() {
     portalBody.appendChild(loader);
 }
 
-function processPortalTable(data, page, days) {
+function processPortalTable(data, page, fromTime, toTime) {
     portalBody.innerHTML = '';
 
     data.data.forEach((item, index) => {
@@ -104,14 +111,14 @@ function processPortalTable(data, page, days) {
     summRow.innerHTML = `
         <td class="body1">Получено UAH: ${data.sumUAH.toFixed(4)}</td>
         <td class="body1">Продано USDT: ${data.sumUSDT.toFixed(4)}</td>
-        <td class="body1">Средний курс продажи с ${formatTime(days)} в UAH: ${data.cource}</td>
+        <td class="body1">Средний курс продажи с ${formatTime(fromTime)} по ${formatTime(toTime)} в UAH: ${data.cource}</td>
     `;
     portalBody.appendChild(summRow);
     const paginationControls = document.getElementById('pagination');
-    setupPagination(data.recordsFiltered, 25, page, days, paginationControls, 'pagination', fetchPortalData);
+    setupPagination(data.recordsFiltered, 25, page, fromTime, toTime, paginationControls, 'pagination', fetchPortalData);
 }
 
-function processP2PTableData(data, days, page) {
+function processP2PTableData(data, page, fromTime, toTime) {
     tableBody.innerHTML = '';
 
     data.data.forEach((rowData, index) => {
@@ -137,15 +144,15 @@ function processP2PTableData(data, days, page) {
     summRow.innerHTML = `
         <td class="body1">Всего куплено: ${data.buyTotal}</td>
         <td class="body1">Всего продано: ${data.soldTotal}</td>
-        <td class="body1">Средний курс покупки с ${formatTime(days)} в UAH: ${data.buyCourse}</td>
-        <td class="body1">Средний курс продажи с ${formatTime(days)} в UAH: ${data.soldCourse}</td>
+        <td class="body1">Средний курс покупки с ${formatTime(fromTime)} по ${formatTime(toTime)} в UAH: ${data.buyCourse}</td>
+        <td class="body1">Средний курс продажи с ${formatTime(fromTime)} по ${formatTime(toTime)} в UAH: ${data.soldCourse}</td>
     `;
     tableBody.appendChild(summRow);
     const paginationControls = document.getElementById('paginationBinance');
-    setupPagination(data.total, 50, page, days, paginationControls, 'paginationBinance', fetchBinanceData);
+    setupPagination(data.total, 50, page, fromTime, toTime, paginationControls, 'paginationBinance', fetchBinanceData);
 }
 
-function setupPagination(totalItems, rowsPerPage, currentPage, days, paginationControls, paginationName, callback) {
+function setupPagination(totalItems, rowsPerPage, currentPage, fromTime, toTime, paginationControls, paginationName, callback) {
     const pageCount = Math.ceil(totalItems / rowsPerPage);
     paginationControls.innerHTML = '';
 
@@ -153,16 +160,16 @@ function setupPagination(totalItems, rowsPerPage, currentPage, days, paginationC
         if (currentPage > 1) {
             if (currentPage + 4 > pageCount) {
                 for(let i = currentPage - 1; i <= pageCount; i++) {
-                    paginationControls.appendChild(createButton(i, currentPage, days, paginationName, callback));
+                    paginationControls.appendChild(createButton(i, currentPage, fromTime, toTime, paginationName, callback));
                 }
             } else {
                 for(let i = currentPage - 1; i <= currentPage + 4; i++) {
-                    paginationControls.appendChild(createButton(i, currentPage, days, paginationName, callback));
+                    paginationControls.appendChild(createButton(i, currentPage, fromTime, toTime, paginationName, callback));
                 }
             }
         } else {
             for(let i = 1; i <= 4; i++) {
-                paginationControls.appendChild(createButton(i, currentPage, days, paginationName, callback));
+                paginationControls.appendChild(createButton(i, currentPage, fromTime, toTime, paginationName, callback));
             }
         }
 
@@ -170,23 +177,23 @@ function setupPagination(totalItems, rowsPerPage, currentPage, days, paginationC
             const ellipsis = document.createElement('span');
             ellipsis.innerText = '...';
             paginationControls.appendChild(ellipsis);
-            paginationControls.appendChild(createButton(pageCount, currentPage, days, paginationName, callback));
+            paginationControls.appendChild(createButton(pageCount, currentPage, fromTime, toTime, paginationName, callback));
         }
     } else {
         for(let i = 1; i <= pageCount; i++) {
-            paginationControls.appendChild(createButton(i, currentPage, days, paginationName, callback));
+            paginationControls.appendChild(createButton(i, currentPage, fromTime, toTime, paginationName, callback));
         }
     }
 }
 
-function createButton(text, currentPage, days, paginationName, callback) {
+function createButton(text, currentPage, fromTime, toTime, paginationName, callback) {
         const button = document.createElement('button');
         button.innerText = text;
         button.className = text === currentPage ? 'active' : '';
         button.addEventListener('click', () => {
             document.querySelector(`#${paginationName} button.active`).classList.remove('active');
             button.classList.add('active');
-            callback(text, days);
+            callback(text, fromTime, toTime);
         });
         return button
 }

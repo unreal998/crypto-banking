@@ -13,7 +13,7 @@ function sign(queryString, secretKey) {
   return createHmac('sha256', secretKey).update(queryString).digest('hex');
 }
 
-async function getBinanceTotalData(milisec) {
+async function getBinanceTotalData(from, to) {
   const endpoint = '/sapi/v1/c2c/orderMatch/listUserOrderHistory';
   const timestamp = Date.now();
 
@@ -23,8 +23,8 @@ async function getBinanceTotalData(milisec) {
   }
   const params = {
     timestamp,
-    startTime: timestamp,
-    endTime: milisec,
+    startTime: to,
+    endTime: from,
     recvWindow: 60000
   };
   const queryString = new URLSearchParams(params).toString();
@@ -43,8 +43,8 @@ async function getBinanceTotalData(milisec) {
     const timestamp = Date.now();
     const params = {
       timestamp,
-      startTime: timestamp,
-      endTime: milisec,
+      startTime: to,
+      endTime: from,
       page: i,
     };
     const queryString = new URLSearchParams(params).toString();
@@ -61,11 +61,11 @@ async function getBinanceTotalData(milisec) {
   return totalData
 }
 
-export async function getP2PTransactions(milisec, page) {
+export async function getP2PTransactions(page, from, to) {
   try {
 
-    const totalData = await getBinanceTotalData(milisec);
-    const items = totalData.data.filter(item => item.createTime >= milisec && item.orderStatus === 'COMPLETED')
+    const totalData = await getBinanceTotalData(from);
+    const items = totalData.data.filter(item => item.createTime >= from && item.orderStatus === 'COMPLETED')
     const pageItems = [];
 
     let buyCourse = 0;
@@ -77,7 +77,7 @@ export async function getP2PTransactions(milisec, page) {
 
     items.forEach((item, index) => {
       if (index <= page * 50 && index > (page * 50) - 51) {
-        if (item.createTime >= milisec) {
+        if (item.createTime >= from) {
           pageItems.push(item);
         }
       }
