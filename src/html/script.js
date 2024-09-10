@@ -1,5 +1,5 @@
-// const SERVER_URL = 'http://188.119.112.129:3003';
-const SERVER_URL = 'http://localhost:3003';
+const SERVER_URL = 'http://188.119.112.129:3003';
+// const SERVER_URL = 'http://localhost:3003';
 
 
 const binanceTable = document.getElementById('binanceTable');
