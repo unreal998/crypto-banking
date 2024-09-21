@@ -109,12 +109,17 @@ export async function getPortalList(page, from, to) {
 }
 
 function formatDate(timestamp) {
+    const timeZoneDifference = 1;
+
     const date = new Date(+timestamp);
 
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours() + 1).padStart(2, '0');
+
+    // Коррекция времени в 1 час для временной зоны сервака
+    const hours = String(date.getHours() + timeZoneDifference).padStart(2, '0');
+
     const minutes = String(date.getMinutes()).padStart(2, '0');
 
     return `${year}-${month}-${day}T${hours}:${minutes}`;
