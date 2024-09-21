@@ -3,7 +3,7 @@ import axios from 'axios';
 const PORTAL_URL = "https://v2.payportal.me/kek/invoices/new/list";
 const SESSION_KEY = "eyJ1c2VyX2lkIjoxODB9.ZtbfsQ.3pFpcvsew2vQAhqVtpQs-U-JBek";
 
-export async function getPortalList(page, milisec) {
+export async function getPortalList(page, from, to) {
     const timestamp = Date.now();
 
     const params = {
@@ -68,8 +68,8 @@ export async function getPortalList(page, milisec) {
         agent_id: 180,
         status: 10,
         _: timestamp,
-        start_date: formatDate(milisec),
-        finish_date: formatDate(timestamp)
+        start_date: formatDate(from),
+        finish_date: formatDate(to)
     }
     const queryString = new URLSearchParams(params);
     const responce = await axios.get(`${PORTAL_URL}?${queryString}`, {
